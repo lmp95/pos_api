@@ -6,4 +6,5 @@ export interface ItemInterface extends DefaultInterface {
     name: string;
     categoryId: ObjectId;
     price: number;
+    description: string;
 }

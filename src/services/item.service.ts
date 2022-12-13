@@ -29,17 +29,23 @@ const createNewItem = async (newItem: ItemInterface, user: UserInterface | any):
  * get category total count
  * @returns {Promise<number>}
  */
-const getItemTotalCount = async (): Promise<number> => {
-    return await ItemModel.find().count();
+const getItemTotalCount = async (category?: string): Promise<number> => {
+    let filter = {};
+    if (category?.length > 0) filter = { categoryId: { $in: category } };
+    return await ItemModel.find(filter).count();
 };
 
 /**
  * Get all items
- * @returns {Promise<DataTableInterface[]>}
+ * @param {limit} limit
+ * @param {page} page
+ * @returns {Promise<DataTableInterface>}
  */
-const getAllItems = async (limit: string, page: string): Promise<DataTableInterface> => {
+const getAllItems = async (filter: string, limit: string, page: string): Promise<DataTableInterface> => {
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
+    let filterCategory = {};
+    if (filter) filterCategory = { categoryId: { $in: filter } };
     let data: DataTableInterface = {
         data: [],
         page: currentPage,
@@ -47,8 +53,8 @@ const getAllItems = async (limit: string, page: string): Promise<DataTableInterf
         total: 0,
     };
     await Promise.all([
-        getItemTotalCount(),
-        ItemModel.find()
+        getItemTotalCount(filter),
+        ItemModel.find(filterCategory)
             .limit(perPage)
             .skip(perPage * currentPage),
     ]).then((values) => {
@@ -62,18 +68,7 @@ const getAllItems = async (limit: string, page: string): Promise<DataTableInterf
     return data;
 };
 
-/**
- * Filter the items by category
- * @param {categoryId} categoryId
- * @returns {Promise<ItemInterface[]>}
- */
-const filterItemsByCategory = async (category: string | string[]): Promise<ItemInterface[]> => {
-    const itemList = await ItemModel.find({ categoryId: { $in: category } });
-    return itemList;
-};
-
 export const itemService = {
     createNewItem,
     getAllItems,
-    filterItemsByCategory,
 };

@@ -12,18 +12,9 @@ const createNewItem = async (req: Request, res: Response, next: NextFunction) =>
 
 const getItems = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const items = await itemService.getAllItems(req.query.limit as string, req.query.page as string);
+        const filter = req.query.filter?.toString();
+        const items = await itemService.getAllItems(filter as string, req.query.limit as string, req.query.page as string);
         res.send(items);
-    } catch (error) {
-        next(error);
-    }
-};
-
-const filterItemsByCategory = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const category = req.query.category.toString().split('|');
-        const filteredItems = await itemService.filterItemsByCategory(category as string[]);
-        res.send(filteredItems);
     } catch (error) {
         next(error);
     }
@@ -32,5 +23,4 @@ const filterItemsByCategory = async (req: Request, res: Response, next: NextFunc
 export const itemController = {
     createNewItem,
     getItems,
-    filterItemsByCategory,
 };
