@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authRouter from './auth.route';
 import categoryRouter from './category.route';
 import itemRouter from './item.route';
+import orderRouter from './order.route';
 import userRouter from './user.route';
 
 const appRouter = Router();
@@ -20,9 +21,13 @@ const defaultRoutes = [
         route: categoryRouter,
     },
     {
-        path: '/Item',
+        path: '/item',
         route: itemRouter,
-    }
+    },
+    {
+        path: '/order',
+        route: orderRouter,
+    },
 ];
 
 defaultRoutes.forEach((route) => {
