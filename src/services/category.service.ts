@@ -24,7 +24,7 @@ const createCategory = async (newCategory: CategoryInterface, user: UserInterfac
 
 /**
  * get category list
- * @returns {Promise<CategoryInterface[]>}
+ * @returns {Promise<DataTableInterface>}
  */
 const getCategoryList = async (limit: string, page: string): Promise<DataTableInterface> => {
     const currentPage = parseInt(page);

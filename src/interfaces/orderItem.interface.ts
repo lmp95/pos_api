@@ -5,5 +5,6 @@ export interface OrderItemInterface {
     name: string;
     quantity: number;
     amount: number;
+    itemId: ObjectId;
     orderId?: ObjectId;
 }

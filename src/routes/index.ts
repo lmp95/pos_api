@@ -3,6 +3,7 @@ import authRouter from './auth.route';
 import categoryRouter from './category.route';
 import itemRouter from './item.route';
 import orderRouter from './order.route';
+import tableRouter from './table.route';
 import userRouter from './user.route';
 
 const appRouter = Router();
@@ -27,6 +28,10 @@ const defaultRoutes = [
     {
         path: '/order',
         route: orderRouter,
+    },
+    {
+        path: '/table',
+        route: tableRouter,
     },
 ];
 

@@ -15,6 +15,10 @@ const OrderItemSchema = new Schema<OrderItemInterface>(
             type: Number,
             required: true,
         },
+        itemId: {
+            type: Types.ObjectId,
+            required: true,
+        },
         orderId: {
             type: Types.ObjectId,
             required: true,

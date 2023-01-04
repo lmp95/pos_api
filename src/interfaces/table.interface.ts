@@ -1,6 +1,7 @@
 import { DefaultInterface } from './default.interface';
 
-export interface CategoryInterface extends DefaultInterface {
+export interface TableInterface extends DefaultInterface {
     _id?: string;
     name: string;
+    status: string;
 }
