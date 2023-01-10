@@ -2,7 +2,7 @@ import { OrderItemInterface } from './orderItem.interface';
 
 export interface OrderInterface {
     _id?: string;
-    table: number;
+    table: string;
     items: OrderItemInterface[];
     subtotal: number;
     discount: number;

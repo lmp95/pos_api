@@ -6,7 +6,7 @@ import defaultFields from './default.model';
 const OrderSchema = new Schema<OrderInterface>(
     {
         table: {
-            type: Number,
+            type: String,
         },
         subtotal: {
             type: Number,
