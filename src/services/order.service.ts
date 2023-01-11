@@ -29,11 +29,24 @@ const createNewOrder = async (newOrder: OrderInterface, user: UserInterface | an
             updatedBy: user.username,
             updatedDate: new Date(),
         });
+        const itemList = newOrder.items.map((item) => ({ ...item, _id: new Types.ObjectId(), itemId: item._id, orderId: order._id }));
+        const orderItems = await OrderItemModel.insertMany(itemList);
+        return order;
     } else {
         // get order items Ids
         // delete existing items and save new items with updated qty and amount
-        const orderItemIds = newOrder.items.map((newItem) => newItem._id);
-        await OrderItemModel.deleteMany({ itemId: { $in: orderItemIds }, orderId: lastOrder._id });
+        if (newOrder.items.length > 0) {
+            newOrder.items.forEach(async (newItem) => {
+                const isUpdated = await OrderItemModel.findOneAndUpdate(
+                    { itemId: newItem._id, orderId: lastOrder._id },
+                    { $inc: { quantity: newItem.quantity, amount: newItem.amount } },
+                    { new: true }
+                );
+                if (!isUpdated) {
+                    await OrderItemModel.create({ ...newItem, _id: new Types.ObjectId(), itemId: newItem._id, orderId: lastOrder._id });
+                }
+            });
+        }
         order = await OrderModel.findByIdAndUpdate(
             lastOrder._id,
             {
@@ -44,10 +57,8 @@ const createNewOrder = async (newOrder: OrderInterface, user: UserInterface | an
             },
             { new: true }
         );
+        return order;
     }
-    const itemList = newOrder.items.map((item) => ({ ...item, _id: new Types.ObjectId(), itemId: item._id, orderId: order._id }));
-    const orderItems = await OrderItemModel.insertMany(itemList);
-    return { ...order.toObject(), items: orderItems };
 };
 
 /**
