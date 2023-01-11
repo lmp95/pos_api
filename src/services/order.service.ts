@@ -10,6 +10,9 @@ import { ORDER_STATUS } from '../utils/constants';
 
 /**
  * create new order
+ * check order is on-going or complete
+ * on-going order adds items to current order
+ * existing items deleted and save new order items
  * @param {newOrder} newOrder
  * @param {user} user
  * @returns {Promise<OrderInterface>}
@@ -17,7 +20,7 @@ import { ORDER_STATUS } from '../utils/constants';
 const createNewOrder = async (newOrder: OrderInterface, user: UserInterface | any): Promise<OrderInterface> => {
     const lastOrder = await retrieveOrderStatusByTable(newOrder.table);
     let order;
-    if (lastOrder.status === ORDER_STATUS.complete) {
+    if (!lastOrder || lastOrder.status === ORDER_STATUS.complete) {
         order = await OrderModel.create({
             ...newOrder,
             status: ORDER_STATUS.ongoing,
@@ -27,7 +30,20 @@ const createNewOrder = async (newOrder: OrderInterface, user: UserInterface | an
             updatedDate: new Date(),
         });
     } else {
-        order = lastOrder;
+        // get order items Ids
+        // delete existing items and save new items with updated qty and amount
+        const orderItemIds = newOrder.items.map((newItem) => newItem._id);
+        await OrderItemModel.deleteMany({ itemId: { $in: orderItemIds }, orderId: lastOrder._id });
+        order = await OrderModel.findByIdAndUpdate(
+            lastOrder._id,
+            {
+                ...newOrder,
+                subtotal: newOrder.subtotal,
+                updatedBy: user.username,
+                updatedDate: new Date(),
+            },
+            { new: true }
+        );
     }
     const itemList = newOrder.items.map((item) => ({ ...item, _id: new Types.ObjectId(), itemId: item._id, orderId: order._id }));
     const orderItems = await OrderItemModel.insertMany(itemList);
@@ -63,8 +79,24 @@ const retrieveOrderDetailById = async (id: string): Promise<OrderInterface> => {
  * retrieve order status
  * @returns {Promise<OrderInterface>}
  */
-const retrieveOrderStatusByTable = async (tableName: string): Promise<OrderInterface> => {
-    return await OrderModel.findOne({ table: tableName }).sort({ createdDate: -1 });
+const retrieveOrderStatusByTable = async (tableName: string): Promise<OrderInterface | any> => {
+    const query = await OrderModel.aggregate([
+        {
+            $match: { table: tableName },
+        },
+        {
+            $lookup: {
+                from: 'orderitems',
+                localField: '_id',
+                foreignField: 'orderId',
+                as: 'items',
+            },
+        },
+        { $sort: { createdDate: -1 } },
+        { $limit: 1 },
+    ]);
+    if (query.length > 0) return query[0];
+    return null;
 };
 
 export const orderService = {
