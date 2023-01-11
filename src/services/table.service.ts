@@ -54,7 +54,7 @@ const deleteTable = async (tableId: string): Promise<TableInterface> => {
  * @returns {Promise<TableInterface[]>}
  */
 const retrieveTables = async (): Promise<TableInterface[]> => {
-    return await TableModel.find();
+    return await TableModel.find().sort({ createdDate: -1 });
 };
 
 export const tableService = {

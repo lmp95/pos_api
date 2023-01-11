@@ -30,35 +30,27 @@ const createNewOrder = async (newOrder: OrderInterface, user: UserInterface | an
             updatedDate: new Date(),
         });
         const itemList = newOrder.items.map((item) => ({ ...item, _id: new Types.ObjectId(), itemId: item._id, orderId: order._id }));
-        const orderItems = await OrderItemModel.insertMany(itemList);
-        return order;
+        await OrderItemModel.insertMany(itemList);
     } else {
         // get order items Ids
         // delete existing items and save new items with updated qty and amount
-        if (newOrder.items.length > 0) {
-            newOrder.items.forEach(async (newItem) => {
-                const isUpdated = await OrderItemModel.findOneAndUpdate(
-                    { itemId: newItem._id, orderId: lastOrder._id },
-                    { $inc: { quantity: newItem.quantity, amount: newItem.amount } },
-                    { new: true }
-                );
-                if (!isUpdated) {
-                    await OrderItemModel.create({ ...newItem, _id: new Types.ObjectId(), itemId: newItem._id, orderId: lastOrder._id });
-                }
-            });
+        for (const newItem of newOrder.items) {
+            const isUpdated = await OrderItemModel.findOneAndUpdate(
+                { itemId: newItem._id, orderId: lastOrder._id },
+                { $inc: { quantity: newItem.quantity, amount: newItem.amount } },
+                { new: true }
+            );
+            if (!isUpdated) {
+                await OrderItemModel.create({ ...newItem, _id: new Types.ObjectId(), itemId: newItem._id, orderId: lastOrder._id });
+            }
         }
         order = await OrderModel.findByIdAndUpdate(
             lastOrder._id,
-            {
-                ...newOrder,
-                subtotal: newOrder.subtotal,
-                updatedBy: user.username,
-                updatedDate: new Date(),
-            },
+            { ...newOrder, $inc: { subtotal: newOrder.subtotal }, updatedBy: user.username, updatedDate: new Date() },
             { new: true }
         );
-        return order;
     }
+    return order;
 };
 
 /**

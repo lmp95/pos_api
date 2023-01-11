@@ -1,11 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 
-export const errorHandler = (
-    err: any,
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
     // eslint-disable-next-line prefer-const
     let { statusCode, message } = err;
     statusCode = statusCode || 400;
