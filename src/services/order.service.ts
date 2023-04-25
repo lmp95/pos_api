@@ -46,7 +46,7 @@ const createNewOrder = async (newOrder: OrderInterface, user: UserInterface | an
         }
         order = await OrderModel.findByIdAndUpdate(
             lastOrder._id,
-            { ...newOrder, $inc: { subtotal: newOrder.subtotal }, updatedBy: user.username, updatedDate: new Date() },
+            { ...newOrder, subtotal: lastOrder.subtotal + newOrder.subtotal, updatedBy: user.username, updatedDate: new Date() },
             { new: true }
         );
     }

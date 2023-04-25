@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Application } from 'express';
 import { config } from 'dotenv';
 import mongoose from 'mongoose';
 import { mongoURI } from './config/configs';
@@ -20,6 +20,7 @@ mongoose
         console.log('MongoDB connected successfully');
     })
     .catch((error) => {
+        console.log(error);
         console.log('MongoDB connection error:');
     });
 

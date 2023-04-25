@@ -18,6 +18,7 @@ config();
 const generateToken = (user: UserInterface, secret: string = process.env.JWT_SECRET): string => {
     const payload = {
         email: user.email,
+        role: user.role,
         iat: moment().unix(),
         exp: moment().add(1, 'days').unix(),
     };
@@ -30,14 +31,13 @@ const generateToken = (user: UserInterface, secret: string = process.env.JWT_SEC
  */
 const Login = async (user: LoginInterface) => {
     const isUser = await UserServices.getUserByEmail(user.email);
-    if (isUser && await validatePassword(user.password, isUser.password)) {
+    if (isUser && (await validatePassword(user.password, isUser.password))) {
         const token = generateToken(isUser);
-        return { email: isUser.email, token: token };
-    }
-    else throw new ApiError(400, 'Email or password is incorrect');
+        return { email: isUser.email, role: isUser.role, token: token };
+    } else throw new ApiError(400, 'Email or password is incorrect');
 };
 
 export const AuthService = {
     Login,
-    generateToken
+    generateToken,
 };
