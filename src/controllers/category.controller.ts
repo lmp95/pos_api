@@ -19,6 +19,15 @@ const getAllCategory = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
+const retrieveAllCategory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const categoryList = await categoryService.getAllCategory();
+        res.send(categoryList);
+    } catch (error) {
+        next(error);
+    }
+};
+
 const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const categoryList = await categoryService.updateCategoryById(req.params.categoryId, req.body, req.user);
@@ -32,4 +41,5 @@ export const categoryController = {
     createCategory,
     getAllCategory,
     updateCategory,
+    retrieveAllCategory,
 };

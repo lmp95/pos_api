@@ -92,9 +92,18 @@ const checkCategoryExist = async (categoryId: string): Promise<CategoryInterface
     throw new ApiError(httpStatus.NOT_FOUND, 'Category not found');
 };
 
+/**
+ * retrieve all category without limitation
+ * @returns {Promise<CategoryInterface[]>}
+ */
+const getAllCategory = async (): Promise<CategoryInterface[]> => {
+    return await CategoryModel.find();
+};
+
 export const categoryService = {
     createCategory,
     getCategoryList,
     updateCategoryById,
     checkCategoryExist,
+    getAllCategory,
 };
