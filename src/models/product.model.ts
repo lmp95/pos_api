@@ -1,8 +1,8 @@
 import { model, Schema, Types } from 'mongoose';
-import { ItemInterface } from '../interfaces/item.interface';
+import { ProductInterface } from '../interfaces/product.interface';
 import defaultFields from './default.model';
 
-const ItemSchema = new Schema<ItemInterface>(
+const ProductScheme = new Schema<ProductInterface>(
     {
         name: {
             type: String,
@@ -28,5 +28,5 @@ const ItemSchema = new Schema<ItemInterface>(
     }
 );
 
-const ItemModel = model('Item', ItemSchema);
-export default ItemModel;
+const ProductModel = model('Product', ProductScheme);
+export default ProductModel;

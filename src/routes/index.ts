@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import authRouter from './auth.route';
 import categoryRouter from './category.route';
-import itemRouter from './item.route';
 import memberRouter from './member.route';
 import orderRouter from './order.route';
 import tableRouter from './table.route';
 import userRouter from './user.route';
+import productRouter from './product.route';
 
 const appRouter = Router();
 
@@ -23,8 +23,8 @@ const defaultRoutes = [
         route: categoryRouter,
     },
     {
-        path: '/item',
-        route: itemRouter,
+        path: '/product',
+        route: productRouter,
     },
     {
         path: '/order',
