@@ -19,6 +19,15 @@ const getAllCategory = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
+const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const category = await categoryService.getCategoryById(req.params.categoryId);
+        res.send(category);
+    } catch (error) {
+        next(error);
+    }
+};
+
 const retrieveAllCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const categoryList = await categoryService.getAllCategory();
@@ -37,9 +46,20 @@ const updateCategory = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
+const deleteCategoryById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const deletedCategory = await categoryService.deleteCategoryById(req.params.categoryId);
+        res.send(deletedCategory);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const categoryController = {
     createCategory,
     getAllCategory,
     updateCategory,
     retrieveAllCategory,
+    getCategoryById,
+    deleteCategoryById,
 };

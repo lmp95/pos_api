@@ -52,6 +52,14 @@ const getCategoryList = async (limit: string, page: string): Promise<DataTableIn
 };
 
 /**
+ * get category by id
+ * @returns {Promise<CategoryInterface>}
+ */
+const getCategoryById = async (categoryId: string): Promise<number> => {
+    return await CategoryModel.findById(categoryId);
+};
+
+/**
  * get category total count
  * @returns {Promise<number>}
  */
@@ -61,9 +69,9 @@ const getCategoryTotalCount = async (): Promise<number> => {
 
 /**
  * update category by Id
- * @param {categoryId} categoryId
- * @param {updateCategory} updateCategory
- * @param {user} user
+ * @param {string} categoryId
+ * @param {CategoryInterface} updateCategory
+ * @param {UserInterface} user
  * @returns {Promise<CategoryInterface>}
  */
 const updateCategoryById = async (categoryId: string, updateCategory: CategoryInterface, user: UserInterface | any): Promise<CategoryInterface> => {
@@ -82,7 +90,7 @@ const updateCategoryById = async (categoryId: string, updateCategory: CategoryIn
 
 /**
  * check category exist by Id
- * @param {categoryId} categoryId
+ * @param {string} categoryId
  * @returns {Promise<CategoryInterface>}
  */
 const checkCategoryExist = async (categoryId: string): Promise<CategoryInterface> => {
@@ -100,10 +108,21 @@ const getAllCategory = async (): Promise<CategoryInterface[]> => {
     return await CategoryModel.find();
 };
 
+/**
+ *  delete category by Id
+ * @param {string} categoryId
+ * @returns {Promise<CategoryInterface>}
+ */
+const deleteCategoryById = async (categoryId: string): Promise<CategoryInterface> => {
+    return await CategoryModel.findByIdAndDelete(categoryId);
+};
+
 export const categoryService = {
     createCategory,
     getCategoryList,
     updateCategoryById,
     checkCategoryExist,
     getAllCategory,
+    getCategoryById,
+    deleteCategoryById,
 };
