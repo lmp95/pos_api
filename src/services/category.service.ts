@@ -45,7 +45,8 @@ const getCategoryList = async (limit: string, page: string): Promise<DataTableIn
         getCategoryTotalCount(),
         CategoryModel.find({ parentId: null })
             .limit(perPage)
-            .skip(perPage * currentPage),
+            .skip(perPage * currentPage)
+            .sort({ createdDate: -1 }),
     ]).then((values) => {
         data = {
             data: values[1],
@@ -129,7 +130,7 @@ const deleteCategoryById = async (categoryId: string): Promise<CategoryInterface
  * @returns {Promise<CategoryInterface[]>}
  */
 const getSubCategoryById = async (parentCatId: string): Promise<CategoryInterface[]> => {
-    return await CategoryModel.find({ parentId: parentCatId });
+    return await CategoryModel.find({ parentId: parentCatId }).sort({ name: 1 });
 };
 
 export const categoryService = {
