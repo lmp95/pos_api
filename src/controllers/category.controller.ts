@@ -32,6 +32,11 @@ const deleteCategoryById = async (req: Request, res: Response, next: NextFunctio
     res.send(deletedCategory);
 };
 
+const getSubCatListById = async (req: Request, res: Response, next: NextFunction) => {
+    const subCatList = await requestHandler(categoryService.getSubCategoryById(req.params.categoryId), next);
+    res.send(subCatList);
+};
+
 export const categoryController = {
     createCategory,
     getAllCategory,
@@ -39,4 +44,5 @@ export const categoryController = {
     retrieveAllCategory,
     getCategoryById,
     deleteCategoryById,
+    getSubCatListById,
 };

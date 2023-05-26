@@ -1,9 +1,12 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema, Types } from 'mongoose';
 import { CategoryInterface } from '../interfaces/category.interface';
 import defaultFields from './default.model';
 
 const CategorySchema = new Schema<CategoryInterface>(
     {
+        parentId: {
+            type: Types.ObjectId,
+        },
         name: {
             type: String,
             required: true,

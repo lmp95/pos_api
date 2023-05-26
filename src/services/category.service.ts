@@ -5,16 +5,20 @@ import { UserInterface } from '../interfaces/user.interface';
 import CategoryModel from '../models/category.model';
 import ApiError from '../utils/apiError';
 import { validateObjectId } from '../utils/utils';
+import { Types } from 'mongoose';
 
 /**
  * Create new category
- * @param {newCategory} newCategory
- * @param {user} user
+ * @param {CategoryInterface} newCategory
+ * @param {UserInterface} user
  * @returns {Promise<CategoryInterface>}
  */
 const createCategory = async (newCategory: CategoryInterface, user: UserInterface | any): Promise<CategoryInterface> => {
+    const parentID = newCategory?.parentId && new Types.ObjectId(newCategory?.parentId as string);
+
     return await CategoryModel.create({
         ...newCategory,
+        parentId: parentID || null,
         createdBy: user.username,
         createdDate: new Date(),
         updatedBy: user.username,
@@ -24,6 +28,8 @@ const createCategory = async (newCategory: CategoryInterface, user: UserInterfac
 
 /**
  * get category list
+ * @param {string} limit
+ * @param {string} page
  * @returns {Promise<DataTableInterface>}
  */
 const getCategoryList = async (limit: string, page: string): Promise<DataTableInterface> => {
@@ -37,7 +43,7 @@ const getCategoryList = async (limit: string, page: string): Promise<DataTableIn
     };
     await Promise.all([
         getCategoryTotalCount(),
-        CategoryModel.find()
+        CategoryModel.find({ parentId: null })
             .limit(perPage)
             .skip(perPage * currentPage),
     ]).then((values) => {
@@ -117,6 +123,15 @@ const deleteCategoryById = async (categoryId: string): Promise<CategoryInterface
     return await CategoryModel.findByIdAndDelete(categoryId);
 };
 
+/**
+ *  get list of sub category by parent Id
+ * @param {string} parentCatId
+ * @returns {Promise<CategoryInterface[]>}
+ */
+const getSubCategoryById = async (parentCatId: string): Promise<CategoryInterface[]> => {
+    return await CategoryModel.find({ parentId: parentCatId });
+};
+
 export const categoryService = {
     createCategory,
     getCategoryList,
@@ -125,4 +140,5 @@ export const categoryService = {
     getAllCategory,
     getCategoryById,
     deleteCategoryById,
+    getSubCategoryById,
 };

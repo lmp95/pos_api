@@ -12,5 +12,6 @@ categoryRouter
     .get(categoryController.getCategoryById)
     .put(categoryController.updateCategory)
     .delete(categoryController.deleteCategoryById);
+categoryRouter.route('/:categoryId/subcategory').all(authMiddleware).get(categoryController.getSubCatListById);
 
 export default categoryRouter;
