@@ -35,6 +35,7 @@ const createCategory = async (newCategory: CategoryInterface, user: UserInterfac
 const getCategoryList = async (limit: string, page: string): Promise<DataTableInterface> => {
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
+
     let data: DataTableInterface = {
         data: [],
         page: currentPage,
@@ -43,10 +44,33 @@ const getCategoryList = async (limit: string, page: string): Promise<DataTableIn
     };
     await Promise.all([
         getCategoryTotalCount(),
-        CategoryModel.find({ parentId: null })
-            .limit(perPage)
-            .skip(perPage * currentPage)
-            .sort({ createdDate: -1 }),
+        CategoryModel.aggregate([
+            {
+                $match: {
+                    parentId: null,
+                },
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: '_id',
+                    foreignField: 'parentId',
+                    as: 'totalSubCategory',
+                },
+            },
+            {
+                $set: {
+                    totalSubCategory: {
+                        $size: '$totalSubCategory',
+                    },
+                },
+            },
+            { $skip: currentPage * perPage },
+            {
+                $limit: perPage,
+            },
+            { $sort: { createdDate: -1 } },
+        ]),
     ]).then((values) => {
         data = {
             data: values[1],
@@ -71,7 +95,7 @@ const getCategoryById = async (categoryId: string): Promise<number> => {
  * @returns {Promise<number>}
  */
 const getCategoryTotalCount = async (): Promise<number> => {
-    return await CategoryModel.find().count();
+    return await CategoryModel.find({ parentId: null }).count();
 };
 
 /**
