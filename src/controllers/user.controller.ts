@@ -1,23 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
 import { UserServices } from '../services/user.service';
-import ApiError from '../utils/apiError';
+import { requestHandler } from '../utils/utils';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const user = await UserServices.createUser(req.body);
-        res.send(user);
-    } catch (error) {
-        next(error);
-    }
+    const user = await requestHandler(UserServices.createUser(req.body), next);
+    res.send(user);
 };
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const users = await UserServices.getUsers();
-        res.send(users);
-    } catch (error) {
-        throw new ApiError(400, 'Fail to retrieve users');
-    }
+    const users = await requestHandler(UserServices.getUsers(), next);
+    res.send(users);
 };
 
 export const UserController = {

@@ -13,7 +13,8 @@ import ProductModel from '../models/product.model';
  * @returns {Promise<ProductInterface>}
  */
 const createNewProduct = async (newItem: ProductInterface, user: UserInterface | any): Promise<ProductInterface> => {
-    const category = await categoryService.checkCategoryExist(newItem.categoryId.toString());
+    if (!newItem?.categoryId) throw new ApiError(httpStatus.BAD_REQUEST, 'Category is required');
+    const category = await categoryService.checkCategoryExist(newItem?.categoryId?.toString());
     if (category)
         return await ProductModel.create({
             ...newItem,

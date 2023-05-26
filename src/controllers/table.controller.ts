@@ -1,40 +1,25 @@
 import { NextFunction, Request, Response } from 'express';
 import { tableService } from '../services/table.service';
+import { requestHandler } from '../utils/utils';
 
 const addTable = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const newTable = await tableService.addTable(req.body, req.user);
-        res.send(newTable);
-    } catch (error) {
-        next(error);
-    }
+    const newTable = await requestHandler(tableService.addTable(req.body, req.user), next);
+    res.send(newTable);
 };
 
 const getTableList = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const tables = await tableService.retrieveTables();
-        res.send(tables);
-    } catch (error) {
-        next(error);
-    }
+    const tables = await requestHandler(tableService.retrieveTables(), next);
+    res.send(tables);
 };
 
 const updateTable = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const table = await tableService.updateTable(req.params.tableId, req.body, req.user);
-        res.send(table);
-    } catch (error) {
-        next(error);
-    }
+    const table = await requestHandler(tableService.updateTable(req.params.tableId, req.body, req.user), next);
+    res.send(table);
 };
 
 const deleteTable = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const deletedTable = await tableService.deleteTable(req.params.tableId);
-        res.send(deletedTable);
-    } catch (error) {
-        next(error);
-    }
+    const deletedTable = await requestHandler(tableService.deleteTable(req.params.tableId), next);
+    res.send(deletedTable);
 };
 
 export const tableController = {

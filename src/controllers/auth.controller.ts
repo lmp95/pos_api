@@ -1,13 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
+import { requestHandler } from '../utils/utils';
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await AuthService.Login(req.body);
-        res.send(result);
-    } catch (error) {
-        next(error);
-    }
+    const result = await requestHandler(AuthService.Login(req.body), next);
+    res.send(result);
 };
 
 export const AuthController = {
