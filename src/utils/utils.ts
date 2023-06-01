@@ -22,3 +22,26 @@ export const requestHandler = async (fn: Promise<any>, next: NextFunction) => {
         next(error);
     }
 };
+
+export function convertToTreeStructure(nodes: any[]) {
+    const map = {};
+    const tree = [];
+
+    // Create a mapping of nodes based on their _id
+    nodes.forEach((node) => {
+        map[node._id] = node;
+        node.children = [];
+    });
+
+    // Iterate over the nodes to build the tree structure
+    nodes.forEach((node) => {
+        if (node.parentId) {
+            const parent = map[node.parentId];
+            parent && parent.children.push(node);
+        } else {
+            tree.push(node);
+        }
+    });
+
+    return tree;
+}

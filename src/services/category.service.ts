@@ -4,8 +4,8 @@ import { DataTableInterface } from '../interfaces/dataTable.interface';
 import { UserInterface } from '../interfaces/user.interface';
 import CategoryModel from '../models/category.model';
 import ApiError from '../utils/apiError';
-import { validateObjectId } from '../utils/utils';
-import { Types } from 'mongoose';
+import { convertToTreeStructure, validateObjectId } from '../utils/utils';
+import { Types, isValidObjectId } from 'mongoose';
 
 /**
  * Create new category
@@ -136,7 +136,18 @@ const checkCategoryExist = async (categoryId: string): Promise<CategoryInterface
  * @returns {Promise<CategoryInterface[]>}
  */
 const getAllCategory = async (): Promise<CategoryInterface[]> => {
-    return await CategoryModel.find();
+    const result = await CategoryModel.aggregate([
+        {
+            $graphLookup: {
+                from: 'categories',
+                startWith: '$_id',
+                connectFromField: '_id',
+                connectToField: 'parentId',
+                as: 'children',
+            },
+        },
+    ]);
+    return convertToTreeStructure(result);
 };
 
 /**
@@ -145,7 +156,8 @@ const getAllCategory = async (): Promise<CategoryInterface[]> => {
  * @returns {Promise<CategoryInterface>}
  */
 const deleteCategoryById = async (categoryId: string): Promise<CategoryInterface> => {
-    return await CategoryModel.findByIdAndDelete(categoryId);
+    if (isValidObjectId(categoryId)) return await CategoryModel.findByIdAndDelete(categoryId);
+    else throw new ApiError(400, 'Fail to delete');
 };
 
 /**
@@ -154,7 +166,22 @@ const deleteCategoryById = async (categoryId: string): Promise<CategoryInterface
  * @returns {Promise<CategoryInterface[]>}
  */
 const getSubCategoryById = async (parentCatId: string): Promise<CategoryInterface[]> => {
-    return await CategoryModel.find({ parentId: parentCatId }).sort({ name: 1 });
+    return await CategoryModel.aggregate([
+        {
+            $match: {
+                parentId: new Types.ObjectId(parentCatId),
+            },
+        },
+        {
+            $graphLookup: {
+                from: 'categories',
+                startWith: '$_id',
+                connectFromField: '_id',
+                connectToField: 'parentId',
+                as: 'children',
+            },
+        },
+    ]).sort({ name: 1 });
 };
 
 export const categoryService = {
