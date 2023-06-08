@@ -5,6 +5,7 @@ import { UserInterface } from '../interfaces/user.interface';
 import ApiError from '../utils/apiError';
 import { categoryService } from './category.service';
 import ProductModel from '../models/product.model';
+import { Types } from 'mongoose';
 
 /**
  * Create new item
@@ -30,10 +31,15 @@ const createNewProduct = async (newItem: ProductInterface, user: UserInterface |
  * get category total count
  * @returns {Promise<number>}
  */
-const getProductTotalCount = async (category?: string): Promise<number> => {
-    let filter = {};
-    if (category?.length > 0) filter = { categoryId: { $in: category } };
-    return await ProductModel.find(filter).count();
+const getProductTotalCount = async (matchQuery?: object): Promise<number> => {
+    return await ProductModel.aggregate([
+        {
+            $match: matchQuery,
+        },
+        {
+            $count: 'total',
+        },
+    ])[0];
 };
 
 /**
@@ -45,8 +51,17 @@ const getProductTotalCount = async (category?: string): Promise<number> => {
 const getAllProduct = async (filter: string, limit: string, page: string): Promise<DataTableInterface> => {
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
-    let filterCategory = {};
-    if (filter) filterCategory = { categoryId: { $in: filter } };
+    let objectIds = [];
+    let matchQuery = {};
+    if (filter) {
+        objectIds = filter.split(',').map((id) => new Types.ObjectId(id));
+        matchQuery = {
+            categoryId: {
+                $in: objectIds,
+            },
+        };
+    }
+
     let data: DataTableInterface = {
         data: [],
         page: currentPage,
@@ -54,10 +69,22 @@ const getAllProduct = async (filter: string, limit: string, page: string): Promi
         total: 0,
     };
     await Promise.all([
-        getProductTotalCount(filter),
-        ProductModel.find(filterCategory)
-            .limit(perPage)
-            .skip(perPage * currentPage),
+        getProductTotalCount(objectIds),
+        ProductModel.aggregate([
+            { $match: matchQuery },
+            {
+                $sort: {
+                    categoryId: 1,
+                    name: 1,
+                },
+            },
+            // {
+            //     $limit: perPage,
+            // },
+            // {
+            //     $skip: perPage * currentPage,
+            // },
+        ]),
     ]).then((values) => {
         data = {
             data: values[1],
