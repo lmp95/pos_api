@@ -66,9 +66,7 @@ const getCategoryList = async (limit: string, page: string): Promise<DataTableIn
                 },
             },
             { $skip: currentPage * perPage },
-            {
-                $limit: perPage,
-            },
+            { $limit: perPage },
             { $sort: { createdDate: -1 } },
         ]),
     ]).then((values) => {

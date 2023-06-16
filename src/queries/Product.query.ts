@@ -4,12 +4,8 @@ export function ProductQuery(match, sort, perPage, currentPage) {
         {
             $sort: sort,
         },
-        {
-            $limit: perPage,
-        },
-        {
-            $skip: perPage * currentPage,
-        },
+        { $skip: currentPage * perPage },
+        { $limit: perPage },
     ];
     return query;
 }

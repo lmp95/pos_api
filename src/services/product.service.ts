@@ -45,7 +45,7 @@ const getProductTotalCount = async (matchQuery?: object): Promise<number> => {
 };
 
 /**
- * Get all items
+ * Get all products with pagination
  * @param {string} limit
  * @param {string} page
  * @returns {Promise<DataTableInterface>}
@@ -53,6 +53,7 @@ const getProductTotalCount = async (matchQuery?: object): Promise<number> => {
 const getAllProductWithPagination = async (filter: string, limit: string, page: string): Promise<DataTableInterface> => {
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
+
     const matchQuery = {};
     // if (filter) {
     //     objectIds = filter.split(',').map((id) => new Types.ObjectId(id));
