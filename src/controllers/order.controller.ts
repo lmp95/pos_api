@@ -8,7 +8,7 @@ const createNewOrder = async (req: Request, res: Response, next: NextFunction) =
 };
 
 const retrieveAllOrder = async (req: Request, res: Response, next: NextFunction) => {
-    const newOrder = await requestHandler(orderService.retrieveAllOrder(), next);
+    const newOrder = await requestHandler(orderService.retrieveAllOrder(req.query.filter as string, req.query.limit as string, req.query.page as string), next);
     res.send(newOrder);
 };
 

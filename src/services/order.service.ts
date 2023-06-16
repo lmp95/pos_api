@@ -57,16 +57,80 @@ const createNewOrder = async (newOrder: OrderInterface, user: UserInterface | an
  * retrieve all orders
  * @returns {Promise<DataTableInterface>}
  */
-const retrieveAllOrder = async (): Promise<DataTableInterface> => {
-    const orders = await OrderModel.find().sort({ _id: -1 });
-    const data: DataTableInterface = {
-        data: orders,
-        page: 1,
-        perPage: 10,
-        total: 100,
+const retrieveAllOrder = async (filter: string, limit: string, page: string): Promise<DataTableInterface> => {
+    const currentPage = parseInt(page);
+    const perPage = parseInt(limit);
+    let filterQuery = {};
+    if (filter) filterQuery = { status: filter };
+    let data: DataTableInterface = {
+        data: [],
+        page: currentPage,
+        perPage: perPage,
+        total: 0,
     };
+    await Promise.all([
+        getOrderTotalCount(),
+        OrderModel.aggregate([
+            {
+                $lookup: {
+                    from: 'orderitems',
+                    localField: '_id',
+                    foreignField: 'orderId',
+                    as: 'orderedItems',
+                    pipeline: [
+                        {
+                            $group: {
+                                _id: null,
+                                totalItems: {
+                                    $sum: 1,
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+            {
+                $unwind: '$orderedItems',
+            },
+            {
+                $unset: 'orderedItems._id',
+            },
+            {
+                $replaceRoot: {
+                    newRoot: {
+                        $mergeObjects: ['$$ROOT', '$orderedItems'],
+                    },
+                },
+            },
+            {
+                $unset: 'orderedItems',
+            },
+            {
+                $sort: { _id: -1 },
+            },
+            {
+                $limit: perPage,
+            },
+            {
+                $skip: perPage * currentPage,
+            },
+        ]),
+    ]).then((values) => {
+        data = {
+            data: values[1],
+            page: currentPage,
+            perPage: perPage,
+            total: values[0],
+        };
+    });
     return data;
 };
+
+/**
+ * get total order count
+ * @returns {Promise<number>}
+ */
+const getOrderTotalCount = async (): Promise<number> => await OrderModel.find().count();
 
 /**
  * retrieve order detail by id
@@ -106,4 +170,5 @@ export const orderService = {
     createNewOrder,
     retrieveAllOrder,
     retrieveOrderDetailById,
+    getOrderTotalCount,
 };

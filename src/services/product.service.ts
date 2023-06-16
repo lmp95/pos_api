@@ -6,6 +6,7 @@ import ApiError from '../utils/apiError';
 import { categoryService } from './category.service';
 import ProductModel from '../models/product.model';
 import { Types } from 'mongoose';
+import { ProductQuery } from '../queries/Product.query';
 
 /**
  * Create new item
@@ -32,14 +33,51 @@ const createNewProduct = async (newItem: ProductInterface, user: UserInterface |
  * @returns {Promise<number>}
  */
 const getProductTotalCount = async (matchQuery?: object): Promise<number> => {
-    return await ProductModel.aggregate([
+    const result = await ProductModel.aggregate([
         {
-            $match: matchQuery,
+            $match: matchQuery || {},
         },
         {
             $count: 'total',
         },
-    ])[0];
+    ]);
+    return result[0]?.total;
+};
+
+/**
+ * Get all items
+ * @param {string} limit
+ * @param {string} page
+ * @returns {Promise<DataTableInterface>}
+ */
+const getAllProductWithPagination = async (filter: string, limit: string, page: string): Promise<DataTableInterface> => {
+    const currentPage = parseInt(page);
+    const perPage = parseInt(limit);
+    const matchQuery = {};
+    // if (filter) {
+    //     objectIds = filter.split(',').map((id) => new Types.ObjectId(id));
+    //     matchQuery = {
+    //         categoryId: {
+    //             $in: objectIds,
+    //         },
+    //     };
+    // }
+
+    let data: DataTableInterface = {
+        data: [],
+        page: currentPage,
+        perPage: perPage,
+        total: 0,
+    };
+    await Promise.all([getProductTotalCount(), ProductModel.aggregate([...ProductQuery(matchQuery, { _id: -1 }, perPage, currentPage)])]).then((values) => {
+        data = {
+            data: values[1],
+            page: currentPage,
+            perPage: perPage,
+            total: values[0],
+        };
+    });
+    return data;
 };
 
 /**
@@ -69,7 +107,7 @@ const getAllProduct = async (filter: string, limit: string, page: string): Promi
         total: 0,
     };
     await Promise.all([
-        getProductTotalCount(objectIds),
+        getProductTotalCount(matchQuery),
         ProductModel.aggregate([
             { $match: matchQuery },
             {
@@ -109,4 +147,5 @@ export const productService = {
     createNewProduct,
     getAllProduct,
     deleteProductById,
+    getAllProductWithPagination,
 };
