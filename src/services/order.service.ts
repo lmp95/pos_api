@@ -18,38 +18,38 @@ import { ORDER_STATUS } from '../utils/constants';
  * @returns {Promise<OrderInterface>}
  */
 const createNewOrder = async (newOrder: OrderInterface, user: UserInterface | any): Promise<OrderInterface> => {
-    const lastOrder = await retrieveOrderStatusByTable(newOrder.table);
-    let order;
-    if (!lastOrder || lastOrder.status === ORDER_STATUS.complete) {
-        order = await OrderModel.create({
-            ...newOrder,
-            status: ORDER_STATUS.ongoing,
-            createdBy: user.username,
-            createdDate: new Date(),
-            updatedBy: user.username,
-            updatedDate: new Date(),
-        });
-        const itemList = newOrder.items.map((item) => ({ ...item, _id: new Types.ObjectId(), itemId: item._id, orderId: order._id }));
-        await OrderItemModel.insertMany(itemList);
-    } else {
-        // get order items Ids
-        // delete existing items and save new items with updated qty and amount
-        for (const newItem of newOrder.items) {
-            const isUpdated = await OrderItemModel.findOneAndUpdate(
-                { itemId: newItem._id, orderId: lastOrder._id },
-                { $inc: { quantity: newItem.quantity, amount: newItem.amount } },
-                { new: true }
-            );
-            if (!isUpdated) {
-                await OrderItemModel.create({ ...newItem, _id: new Types.ObjectId(), itemId: newItem._id, orderId: lastOrder._id });
-            }
-        }
-        order = await OrderModel.findByIdAndUpdate(
-            lastOrder._id,
-            { ...newOrder, subtotal: lastOrder.subtotal + newOrder.subtotal, updatedBy: user.username, updatedDate: new Date() },
-            { new: true }
-        );
-    }
+    // const lastOrder = await retrieveOrderStatusByTable(newOrder.table);
+    // let order;
+    // if (!lastOrder || lastOrder.status === ORDER_STATUS.complete) {
+    const order = await OrderModel.create({
+        ...newOrder,
+        status: ORDER_STATUS.ongoing,
+        createdBy: user.username,
+        createdDate: new Date(),
+        updatedBy: user.username,
+        updatedDate: new Date(),
+    });
+    const itemList = newOrder.items.map((item) => ({ ...item, _id: new Types.ObjectId(), itemId: item._id, orderId: order._id }));
+    await OrderItemModel.insertMany(itemList);
+    // } else {
+    //     // get order items Ids
+    //     // delete existing items and save new items with updated qty and amount
+    //     for (const newItem of newOrder.items) {
+    //         const isUpdated = await OrderItemModel.findOneAndUpdate(
+    //             { itemId: newItem._id, orderId: lastOrder._id },
+    //             { $inc: { quantity: newItem.quantity, amount: newItem.amount } },
+    //             { new: true }
+    //         );
+    //         if (!isUpdated) {
+    //             await OrderItemModel.create({ ...newItem, _id: new Types.ObjectId(), itemId: newItem._id, orderId: lastOrder._id });
+    //         }
+    //     }
+    //     order = await OrderModel.findByIdAndUpdate(
+    //         lastOrder._id,
+    //         { ...newOrder, subtotal: lastOrder.subtotal + newOrder.subtotal, updatedBy: user.username, updatedDate: new Date() },
+    //         { new: true }
+    //     );
+    // }
     return order;
 };
 
