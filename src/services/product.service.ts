@@ -7,25 +7,34 @@ import { categoryService } from './category.service';
 import ProductModel from '../models/product.model';
 import { Types } from 'mongoose';
 import { ProductQuery } from '../queries/Product.query';
+import { fileRemove } from '../utils/utility';
 
 /**
  * Create new item
- * @param {newItem} newItem
+ * @param {newProduct} newProduct
  * @param {user} user
  * @returns {Promise<ProductInterface>}
  */
-const createNewProduct = async (newItem: ProductInterface, user: UserInterface | any): Promise<ProductInterface> => {
-    if (!newItem?.categoryId) throw new ApiError(httpStatus.BAD_REQUEST, 'Category is required');
-    const category = await categoryService.checkCategoryExist(newItem?.categoryId?.toString());
+const createNewProduct = async (image: Express.Multer.File, newProduct: ProductInterface, user: UserInterface | any) => {
+    if (!newProduct?.categoryId) {
+        fileRemove(image.path);
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Category is required');
+    }
+    const category = await categoryService.checkCategoryExist(newProduct?.categoryId?.toString());
     if (category)
         return await ProductModel.create({
-            ...newItem,
+            ...newProduct,
+            image: image?.filename,
+            path: image?.destination.replace(/\.\/public/, ''),
             createdBy: user.username,
             createdDate: new Date(),
             updatedBy: user.username,
             updatedDate: new Date(),
         });
-    else throw new ApiError(httpStatus.BAD_REQUEST, 'Fail to create item');
+    else {
+        fileRemove(image.path);
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Fail to create item');
+    }
 };
 
 /**
@@ -141,7 +150,9 @@ const getAllProduct = async (filter: string, limit: string, page: string): Promi
  * @returns {Promise<TableInterface>}
  */
 const deleteProductById = async (productId: string): Promise<ProductInterface> => {
-    return await ProductModel.findOneAndDelete({ _id: productId });
+    const deletedProduct = await ProductModel.findOneAndDelete({ _id: productId });
+    fileRemove(deletedProduct.path, false, deletedProduct?.image);
+    return deletedProduct;
 };
 
 export const productService = {

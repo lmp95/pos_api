@@ -4,7 +4,7 @@ import moment from 'moment';
 import { LoginInterface } from '../interfaces/login.interface';
 import { UserInterface } from '../interfaces/user.interface';
 import ApiError from '../utils/apiError';
-import { validatePassword } from '../utils/utils';
+import { validatePassword } from '../utils/utility';
 import { UserServices } from './user.service';
 
 config();

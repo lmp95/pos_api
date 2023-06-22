@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { productService } from '../services/product.service';
-import { requestHandler } from '../utils/utils';
+import { requestHandler } from '../utils/utility';
 
 const createNewProduct = async (req: Request, res: Response, next: NextFunction) => {
-    const newItem = await requestHandler(productService.createNewProduct(req.body, req.user), next);
+    const newItem = await requestHandler(productService.createNewProduct(req.file, req.body, req.user), next);
     res.send(newItem);
 };
 

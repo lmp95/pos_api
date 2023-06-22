@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { memberService } from '../services/member.service';
-import { requestHandler } from '../utils/utils';
+import { requestHandler } from '../utils/utility';
 
 const addNewMember = async (req: Request, res: Response, next: NextFunction) => {
     const member = await requestHandler(memberService.addNewMember(req.body, req.user), next);

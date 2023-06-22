@@ -1,5 +1,6 @@
 import { genSalt, hash, compare } from 'bcryptjs';
 import { NextFunction } from 'express';
+import { unlink } from 'fs';
 import { isValidObjectId } from 'mongoose';
 
 export const hashPassword = async (password: string): Promise<string> => {
@@ -44,4 +45,14 @@ export function convertToTreeStructure(nodes: any[]) {
     });
 
     return tree;
+}
+
+export function fileRemove(path: string, isRoot = true, filename = null) {
+    let fullPath = isRoot ? path : `./public${path}`;
+    fullPath = filename ? `${fullPath}/${filename}` : fullPath;
+    unlink(fullPath, (err) => {
+        if (err) {
+            return { error: err };
+        }
+    });
 }

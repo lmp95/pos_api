@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { tableService } from '../services/table.service';
-import { requestHandler } from '../utils/utils';
+import { requestHandler } from '../utils/utility';
 
 const addTable = async (req: Request, res: Response, next: NextFunction) => {
     const newTable = await requestHandler(tableService.addTable(req.body, req.user), next);

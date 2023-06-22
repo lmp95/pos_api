@@ -4,6 +4,12 @@ import defaultFields from './default.model';
 
 const ProductScheme = new Schema<ProductInterface>(
     {
+        image: {
+            type: String,
+        },
+        path: {
+            type: String,
+        },
         name: {
             type: String,
             required: true,

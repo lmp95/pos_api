@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { orderService } from '../services/order.service';
-import { requestHandler } from '../utils/utils';
+import { requestHandler } from '../utils/utility';
 
 const createNewOrder = async (req: Request, res: Response, next: NextFunction) => {
     const newOrder = await requestHandler(orderService.createNewOrder(req.body, req.user), next);

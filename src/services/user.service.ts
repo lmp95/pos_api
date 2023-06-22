@@ -1,7 +1,7 @@
 import { UserInterface } from '../interfaces/user.interface';
 import UserModel from '../models/user.model';
 import ApiError from '../utils/apiError';
-import { hashPassword } from '../utils/utils';
+import { hashPassword } from '../utils/utility';
 
 /**
  * Create user

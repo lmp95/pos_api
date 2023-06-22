@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { categoryService } from '../services/category.service';
-import { requestHandler } from '../utils/utils';
+import { requestHandler } from '../utils/utility';
 
 const createCategory = async (req: Request, res: Response, next: NextFunction) => {
     const newCategory = await requestHandler(categoryService.createCategory(req.body, req.user), next);

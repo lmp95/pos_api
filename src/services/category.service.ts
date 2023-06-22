@@ -4,7 +4,7 @@ import { DataTableInterface } from '../interfaces/dataTable.interface';
 import { UserInterface } from '../interfaces/user.interface';
 import CategoryModel from '../models/category.model';
 import ApiError from '../utils/apiError';
-import { convertToTreeStructure, validateObjectId } from '../utils/utils';
+import { convertToTreeStructure, validateObjectId } from '../utils/utility';
 import { Types, isValidObjectId } from 'mongoose';
 
 /**
