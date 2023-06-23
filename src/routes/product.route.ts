@@ -7,9 +7,10 @@ const productRouter = Router();
 
 productRouter
     .route('/')
-    .get(authMiddleware, productController.getProducts)
-    .post(authMiddleware, upload('product').single('productImage'), productController.createNewProduct);
-productRouter.route('/all').get(authMiddleware, productController.getAllProducts);
-productRouter.route('/:productId').delete(authMiddleware, productController.deleteProductById);
+    .all(authMiddleware)
+    .get(productController.getProducts)
+    .post(upload('product').single('productImage'), productController.createNewProduct);
+productRouter.route('/all').all(authMiddleware).get(productController.getAllProducts);
+productRouter.route('/:productId').all(authMiddleware).get(productController.getProductById).delete(authMiddleware, productController.deleteProductById);
 
 export default productRouter;

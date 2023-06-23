@@ -144,6 +144,10 @@ const getAllProduct = async (filter: string, limit: string, page: string): Promi
     return data;
 };
 
+const getProductById = async (productId: string): Promise<ProductInterface> => {
+    return ProductModel.findById(productId);
+};
+
 /**
  * delete product by id
  * @param {string} productId
@@ -160,4 +164,5 @@ export const productService = {
     getAllProduct,
     deleteProductById,
     getAllProductWithPagination,
+    getProductById,
 };
