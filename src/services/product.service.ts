@@ -148,6 +148,28 @@ const getProductById = async (productId: string): Promise<ProductInterface> => {
     return ProductModel.findById(productId);
 };
 
+const updateProductById = async (
+    image: Express.Multer.File,
+    productId: string,
+    updateProduct: ProductInterface,
+    user: UserInterface | any
+): Promise<ProductInterface> => {
+    if (image?.filename) {
+        fileRemove(updateProduct?.path, false, updateProduct.image);
+    }
+    return await ProductModel.findByIdAndUpdate(
+        productId,
+        {
+            ...updateProduct,
+            image: image?.filename,
+            path: image?.destination.replace(/\.\/public/, ''),
+            updatedBy: user.username,
+            updatedDate: new Date(),
+        },
+        { new: true }
+    );
+};
+
 /**
  * delete product by id
  * @param {string} productId
@@ -165,4 +187,5 @@ export const productService = {
     deleteProductById,
     getAllProductWithPagination,
     getProductById,
+    updateProductById,
 };

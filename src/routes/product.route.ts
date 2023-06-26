@@ -11,6 +11,11 @@ productRouter
     .get(productController.getProducts)
     .post(upload('product').single('productImage'), productController.createNewProduct);
 productRouter.route('/all').all(authMiddleware).get(productController.getAllProducts);
-productRouter.route('/:productId').all(authMiddleware).get(productController.getProductById).delete(authMiddleware, productController.deleteProductById);
+productRouter
+    .route('/:productId')
+    .all(authMiddleware)
+    .get(productController.getProductById)
+    .put(upload('product').single('productImage'), productController.updateProductById)
+    .delete(productController.deleteProductById);
 
 export default productRouter;

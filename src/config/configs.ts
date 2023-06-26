@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidV4 } from 'uuid';
-import { mkdirSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 
 config();
 // Mongodb URL

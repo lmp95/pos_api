@@ -32,10 +32,16 @@ const getProductById = async (req: Request, res: Response, next: NextFunction) =
     res.send(product);
 };
 
+const updateProductById = async (req: Request, res: Response, next: NextFunction) => {
+    const product = await requestHandler(productService.updateProductById(req.file, req.params.productId, req.body, req.user), next);
+    res.send(product);
+};
+
 export const productController = {
     createNewProduct,
     getProducts,
     deleteProductById,
     getAllProducts,
     getProductById,
+    updateProductById,
 };
