@@ -8,6 +8,7 @@ import ProductModel from '../models/product.model';
 import { Types } from 'mongoose';
 import { ProductQuery } from '../queries/Product.query';
 import { fileRemove } from '../utils/utility';
+import { lookup } from 'dns';
 
 /**
  * Create new item
@@ -64,6 +65,12 @@ const getAllProductWithPagination = async (filter: string, limit: string, page: 
     const perPage = parseInt(limit);
 
     const matchQuery = {};
+    const lookup = {
+        from: 'categories',
+        localField: 'categoryId',
+        foreignField: '_id',
+        as: 'category',
+    };
     // if (filter) {
     //     objectIds = filter.split(',').map((id) => new Types.ObjectId(id));
     //     matchQuery = {
@@ -79,7 +86,10 @@ const getAllProductWithPagination = async (filter: string, limit: string, page: 
         perPage: perPage,
         total: 0,
     };
-    await Promise.all([getProductTotalCount(), ProductModel.aggregate([...ProductQuery(matchQuery, { _id: -1 }, perPage, currentPage)])]).then((values) => {
+    await Promise.all([
+        getProductTotalCount(),
+        ProductModel.aggregate([{ $lookup: lookup }, { $unwind: '$category' }, { $sort: { _id: -1 } }, { $skip: currentPage * perPage }, { $limit: perPage }]),
+    ]).then((values) => {
         data = {
             data: values[1],
             page: currentPage,
