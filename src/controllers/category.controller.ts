@@ -2,39 +2,32 @@ import { Request, Response, NextFunction } from 'express';
 import { categoryService } from '../services/category.service';
 import { requestHandler } from '../utils/utility';
 
-const createCategory = async (req: Request, res: Response, next: NextFunction) => {
-    const newCategory = await requestHandler(categoryService.createCategory(req.body, req.user), res, next);
-    res.send(newCategory);
+const createCategory = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(categoryService.createCategory(req.body, req.user), res, next);
 };
 
-const getAllCategory = async (req: Request, res: Response, next: NextFunction) => {
-    const categoryList = await requestHandler(categoryService.getCategoryList(req.query.limit as string, req.query.page as string), res, next);
-    res.send(categoryList);
+const getAllCategory = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(categoryService.getCategoryList(req.query.limit as string, req.query.page as string), res, next);
 };
 
-const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
-    const category = await requestHandler(categoryService.getCategoryById(req.params.categoryId), res, next);
-    res.send(category);
+const getCategoryById = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(categoryService.getCategoryById(req.params.categoryId), res, next);
 };
 
-const retrieveAllCategory = async (req: Request, res: Response, next: NextFunction) => {
-    const categoryList = await requestHandler(categoryService.getAllCategory(), res, next);
-    res.send(categoryList);
+const retrieveAllCategory = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(categoryService.getAllCategory(), res, next);
 };
 
-const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
-    const categoryList = await requestHandler(categoryService.updateCategoryById(req.params.categoryId, req.body, req.user), res, next);
-    res.send(categoryList);
+const updateCategory = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(categoryService.updateCategoryById(req.params.categoryId, req.body, req.user), res, next);
 };
 
-const deleteCategoryById = async (req: Request, res: Response, next: NextFunction) => {
-    const deletedCategory = await requestHandler(categoryService.deleteCategoryById(req.params.categoryId), res, next);
-    res.send(deletedCategory);
+const deleteCategoryById = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(categoryService.deleteCategoryById(req.params.categoryId), res, next);
 };
 
-const getSubCatListById = async (req: Request, res: Response, next: NextFunction) => {
-    const subCatList = await requestHandler(categoryService.getSubCategoryById(req.params.categoryId), res, next);
-    res.send(subCatList);
+const getSubCatListById = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(categoryService.getSubCategoryById(req.params.categoryId), res, next);
 };
 
 export const categoryController = {

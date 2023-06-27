@@ -2,40 +2,30 @@ import { NextFunction, Request, Response } from 'express';
 import { productService } from '../services/product.service';
 import { requestHandler } from '../utils/utility';
 
-const createNewProduct = async (req: Request, res: Response, next: NextFunction) => {
-    const newProduct = await requestHandler(productService.createNewProduct(req.file, req.body, req.user), res, next);
-    res.send(newProduct);
+const createNewProduct = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(productService.createNewProduct(req.file, req.body, req.user), res, next);
 };
 
-const getProducts = async (req: Request, res: Response, next: NextFunction) => {
+const getProducts = (req: Request, res: Response, next: NextFunction) => {
     const filter = req.query.filter?.toString();
-    const products = await requestHandler(
-        productService.getAllProductWithPagination(filter as string, req.query.limit as string, req.query.page as string),
-        res,
-        next
-    );
-    res.send(products);
+    requestHandler(productService.getAllProductWithPagination(filter as string, req.query.limit as string, req.query.page as string), res, next);
 };
 
-const deleteProductById = async (req: Request, res: Response, next: NextFunction) => {
-    const deletedProduct = await requestHandler(productService.deleteProductById(req.params.productId), res, next);
-    res.send(deletedProduct);
+const deleteProductById = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(productService.deleteProductById(req.params.productId), res, next);
 };
 
-const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
+const getAllProducts = (req: Request, res: Response, next: NextFunction) => {
     const filter = req.query.filter?.toString();
-    const products = await requestHandler(productService.getAllProduct(filter as string, req.query.limit as string, req.query.page as string), res, next);
-    res.send(products);
+    requestHandler(productService.getAllProduct(filter as string, req.query.limit as string, req.query.page as string), res, next);
 };
 
-const getProductById = async (req: Request, res: Response, next: NextFunction) => {
-    const product = await requestHandler(productService.getProductById(req.params.productId), res, next);
-    res.send(product);
+const getProductById = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(productService.getProductById(req.params.productId), res, next);
 };
 
-const updateProductById = async (req: Request, res: Response, next: NextFunction) => {
-    const product = await requestHandler(productService.updateProductById(req.file, req.params.productId, req.body, req.user), res, next);
-    res.send(product);
+const updateProductById = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(productService.updateProductById(req.file, req.params.productId, req.body, req.user), res, next);
 };
 
 export const productController = {
