@@ -13,10 +13,12 @@ const CustomerSchema = new Schema<CustomerInterface>(
         },
         email: {
             type: String,
+            unique: true,
         },
         phone: {
-            type: Number,
+            type: String,
             required: true,
+            unique: true,
         },
         status: {
             type: Boolean,

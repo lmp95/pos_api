@@ -1,7 +1,9 @@
 import { genSalt, hash, compare } from 'bcryptjs';
-import { NextFunction } from 'express';
+import { NextFunction, Response } from 'express';
 import { unlink } from 'fs';
-import { isValidObjectId } from 'mongoose';
+import { Error, isValidObjectId } from 'mongoose';
+import ApiError from './apiError';
+import httpStatus from 'http-status';
 
 export const hashPassword = async (password: string): Promise<string> => {
     const salt = await genSalt(10);
@@ -16,9 +18,10 @@ export const validateObjectId = (id: string) => {
     return isValidObjectId(id);
 };
 
-export const requestHandler = async (fn: Promise<any>, next: NextFunction) => {
+export const requestHandler = async (fn: Promise<any>, res?: Response, next?: NextFunction) => {
     try {
-        return await fn;
+        const result = await fn;
+        res.send(result);
     } catch (error) {
         next(error);
     }

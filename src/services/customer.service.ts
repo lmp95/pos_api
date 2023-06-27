@@ -1,7 +1,9 @@
+import httpStatus from 'http-status';
 import { CustomerInterface } from '../interfaces/customer.interface';
 import { DataTableInterface } from '../interfaces/dataTable.interface';
 import { UserInterface } from '../interfaces/user.interface';
 import CustomerModel from '../models/customer.model';
+import ApiError from '../utils/apiError';
 
 /**
  * create new customer
