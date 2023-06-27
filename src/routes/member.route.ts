@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { memberController } from '../controllers/member.controller';
 import { authMiddleware } from '../middlewares/validate';
+import { customerController } from '../controllers/customer.controller';
 
-const memberRouter = Router();
+const customerRouter = Router();
 
-memberRouter.route('/').get(authMiddleware, memberController.retrieveAllMember).post(authMiddleware, memberController.addNewMember);
-memberRouter.route('/:memberId').post(authMiddleware, memberController.updateMember).delete(authMiddleware, memberController.deleteMember);
+customerRouter.route('/').all(authMiddleware).get(customerController.retrieveAllCustomer).post(customerController.addNewCustomer);
+customerRouter.route('/:memberId').all(authMiddleware).post(customerController.updateCustomer).delete(customerController.deleteCustomer);
 
-export default memberRouter;
+export default customerRouter;
