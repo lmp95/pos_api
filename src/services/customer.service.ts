@@ -1,9 +1,7 @@
-import httpStatus from 'http-status';
 import { CustomerInterface } from '../interfaces/customer.interface';
 import { DataTableInterface } from '../interfaces/dataTable.interface';
 import { UserInterface } from '../interfaces/user.interface';
 import CustomerModel from '../models/customer.model';
-import ApiError from '../utils/apiError';
 
 /**
  * create new customer
@@ -26,9 +24,8 @@ const addNewCustomer = async (newCustomer: CustomerInterface, user: UserInterfac
  * get total customer count
  * @returns {Promise<number>}
  */
-const getCustomerTotalCount = async (status?: string): Promise<number> => {
-    let filter = {};
-    if (status) filter = { status: status };
+const getCustomerTotalCount = async (filterQuery?: any): Promise<number> => {
+    const filter = filterQuery || {};
     return await CustomerModel.find(filter).count();
 };
 
@@ -43,7 +40,7 @@ const getAllCustomers = async (filter: string, limit: string, page: string): Pro
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
     let filterQuery = {};
-    if (filter) filterQuery = { status: filter };
+    if (filter) filterQuery = { $or: [{ name: { $regex: filter } }, { email: { $regex: filter } }] };
     let data: DataTableInterface = {
         data: [],
         page: currentPage,
@@ -51,7 +48,7 @@ const getAllCustomers = async (filter: string, limit: string, page: string): Pro
         total: 0,
     };
     await Promise.all([
-        getCustomerTotalCount(filter),
+        getCustomerTotalCount(filterQuery),
         CustomerModel.find(filterQuery)
             .limit(perPage)
             .skip(perPage * currentPage),
@@ -95,9 +92,19 @@ const deleteCustomer = async (customerId: string): Promise<CustomerInterface> =>
     return await CustomerModel.findByIdAndDelete(customerId);
 };
 
+/**
+ * get customer by Id
+ * @param {customerId} customerId
+ * @returns {Promise<CustomerInterface>}
+ */
+const getCustomerById = async (customerId: string): Promise<CustomerInterface> => {
+    return await CustomerModel.findById(customerId);
+};
+
 export const customerService = {
     getAllCustomers,
     addNewCustomer,
     updateCustomer,
     deleteCustomer,
+    getCustomerById,
 };

@@ -19,9 +19,14 @@ const retrieveAllCustomer = (req: Request, res: Response, next: NextFunction) =>
     requestHandler(customerService.getAllCustomers(filter as string, req.query.limit as string, req.query.page as string), res, next);
 };
 
+const getCustomerById = (req: Request, res: Response, next: NextFunction) => {
+    requestHandler(customerService.getCustomerById(req.params.customerId), res, next);
+};
+
 export const customerController = {
     addNewCustomer,
     updateCustomer,
     deleteCustomer,
     retrieveAllCustomer,
+    getCustomerById,
 };
