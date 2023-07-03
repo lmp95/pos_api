@@ -42,10 +42,10 @@ const createNewProduct = async (image: Express.Multer.File, newProduct: ProductI
  * get category total count
  * @returns {Promise<number>}
  */
-const getProductTotalCount = async (matchQuery?: object): Promise<number> => {
+const getProductTotalCount = async (searchQuery?: object): Promise<number> => {
     const result = await ProductModel.aggregate([
         {
-            $match: matchQuery || {},
+            $match: searchQuery || {},
         },
         {
             $count: 'total',
@@ -56,15 +56,17 @@ const getProductTotalCount = async (matchQuery?: object): Promise<number> => {
 
 /**
  * Get all products with pagination
+ * @param {string} search
+ * @param {string} filter
  * @param {string} limit
  * @param {string} page
  * @returns {Promise<DataTableInterface>}
  */
-const getAllProductWithPagination = async (filter: string, limit: string, page: string): Promise<DataTableInterface> => {
+const getAllProductWithPagination = async (search: string, filter: string, limit: string, page: string): Promise<DataTableInterface> => {
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
 
-    const matchQuery = {};
+    const searchQuery = { $or: [{ name: { $regex: search, $options: 'i' } }] };
     const lookup = {
         from: 'categories',
         localField: 'categoryId',
@@ -87,8 +89,15 @@ const getAllProductWithPagination = async (filter: string, limit: string, page: 
         total: 0,
     };
     await Promise.all([
-        getProductTotalCount(),
-        ProductModel.aggregate([{ $lookup: lookup }, { $unwind: '$category' }, { $sort: { _id: -1 } }, { $skip: currentPage * perPage }, { $limit: perPage }]),
+        getProductTotalCount(searchQuery),
+        ProductModel.aggregate([
+            { $match: searchQuery },
+            { $lookup: lookup },
+            { $unwind: '$category' },
+            { $sort: { _id: -1 } },
+            { $skip: currentPage * perPage },
+            { $limit: perPage },
+        ]),
     ]).then((values) => {
         data = {
             data: values[1],

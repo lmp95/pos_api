@@ -8,7 +8,12 @@ const createNewProduct = (req: Request, res: Response, next: NextFunction) => {
 
 const getProducts = (req: Request, res: Response, next: NextFunction) => {
     const filter = req.query.filter?.toString();
-    requestHandler(productService.getAllProductWithPagination(filter as string, req.query.limit as string, req.query.page as string), res, next);
+    const search = req.query.search?.toString();
+    requestHandler(
+        productService.getAllProductWithPagination(search as string, filter as string, req.query.limit as string, req.query.page as string),
+        res,
+        next
+    );
 };
 
 const deleteProductById = (req: Request, res: Response, next: NextFunction) => {

@@ -5,8 +5,8 @@ import CustomerModel from '../models/customer.model';
 
 /**
  * create new customer
- * @param {newCustomer} newCustomer
- * @param {user} user
+ * @param {CustomerInterface} newCustomer
+ * @param {UserInterface | any} user
  * @returns {Promise<CustomerInterface>}
  */
 const addNewCustomer = async (newCustomer: CustomerInterface, user: UserInterface | any): Promise<CustomerInterface> => {
@@ -24,23 +24,24 @@ const addNewCustomer = async (newCustomer: CustomerInterface, user: UserInterfac
  * get total customer count
  * @returns {Promise<number>}
  */
-const getCustomerTotalCount = async (filterQuery?: any): Promise<number> => {
-    const filter = filterQuery || {};
-    return await CustomerModel.find(filter).count();
+const getCustomerTotalCount = async (searchQuery?: any): Promise<number> => {
+    const search = searchQuery || {};
+    return await CustomerModel.find(search).count();
 };
 
 /**
  * Get all customers
- * @param {filter} filter
- * @param {limit} limit
- * @param {page} page
+ * @param {striing} search
+ * @param {striing} filter
+ * @param {striing} limit
+ * @param {striing} page
  * @returns {Promise<DataTableInterface>}
  */
-const getAllCustomers = async (filter: string, limit: string, page: string): Promise<DataTableInterface> => {
+const getAllCustomers = async (search: string, filter: string, limit: string, page: string): Promise<DataTableInterface> => {
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
-    let filterQuery = {};
-    if (filter) filterQuery = { $or: [{ name: { $regex: filter } }, { email: { $regex: filter } }] };
+    let searchQuery = {};
+    if (search) searchQuery = { $or: [{ name: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }] };
     let data: DataTableInterface = {
         data: [],
         page: currentPage,
@@ -48,8 +49,8 @@ const getAllCustomers = async (filter: string, limit: string, page: string): Pro
         total: 0,
     };
     await Promise.all([
-        getCustomerTotalCount(filterQuery),
-        CustomerModel.find(filterQuery)
+        getCustomerTotalCount(searchQuery),
+        CustomerModel.find(searchQuery)
             .limit(perPage)
             .skip(perPage * currentPage),
     ]).then((values) => {

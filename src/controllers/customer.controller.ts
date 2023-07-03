@@ -16,7 +16,8 @@ const deleteCustomer = (req: Request, res: Response, next: NextFunction) => {
 
 const retrieveAllCustomer = (req: Request, res: Response, next: NextFunction) => {
     const filter = req.query.filter?.toString();
-    requestHandler(customerService.getAllCustomers(filter as string, req.query.limit as string, req.query.page as string), res, next);
+    const search = req.query.search?.toString();
+    requestHandler(customerService.getAllCustomers(search as string, filter as string, req.query.limit as string, req.query.page as string), res, next);
 };
 
 const getCustomerById = (req: Request, res: Response, next: NextFunction) => {
