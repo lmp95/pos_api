@@ -6,9 +6,7 @@ import ApiError from '../utils/apiError';
 import { categoryService } from './category.service';
 import ProductModel from '../models/product.model';
 import { Types } from 'mongoose';
-import { ProductQuery } from '../queries/Product.query';
 import { fileRemove } from '../utils/utility';
-import { lookup } from 'dns';
 
 /**
  * Create new item
