@@ -7,6 +7,7 @@ import OrderModel from '../models/order.model';
 import OrderItemModel from '../models/orderItem.model';
 import TableModel from '../models/table.model';
 import { ORDER_STATUS } from '../utils/constants';
+import { orderPaginationQuery } from '../queries/Order.query';
 
 /**
  * create new order
@@ -57,7 +58,7 @@ const createNewOrder = async (newOrder: OrderInterface, user: UserInterface | an
  * retrieve all orders
  * @returns {Promise<DataTableInterface>}
  */
-const retrieveAllOrder = async (filter: string, limit: string, page: string): Promise<DataTableInterface> => {
+const retrieveAllOrder = async (search: string, filter: string, limit: string, page: string): Promise<DataTableInterface> => {
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
     let filterQuery = {};
@@ -68,54 +69,7 @@ const retrieveAllOrder = async (filter: string, limit: string, page: string): Pr
         perPage: perPage,
         total: 0,
     };
-    await Promise.all([
-        getOrderTotalCount(),
-        OrderModel.aggregate([
-            {
-                $lookup: {
-                    from: 'orderitems',
-                    localField: '_id',
-                    foreignField: 'orderId',
-                    as: 'orderedItems',
-                    pipeline: [
-                        {
-                            $group: {
-                                _id: null,
-                                totalItems: {
-                                    $sum: 1,
-                                },
-                            },
-                        },
-                    ],
-                },
-            },
-            {
-                $unwind: '$orderedItems',
-            },
-            {
-                $unset: 'orderedItems._id',
-            },
-            {
-                $replaceRoot: {
-                    newRoot: {
-                        $mergeObjects: ['$$ROOT', '$orderedItems'],
-                    },
-                },
-            },
-            {
-                $unset: 'orderedItems',
-            },
-            {
-                $sort: { _id: -1 },
-            },
-            {
-                $limit: perPage,
-            },
-            {
-                $skip: perPage * currentPage,
-            },
-        ]),
-    ]).then((values) => {
+    await Promise.all([getOrderTotalCount(), OrderModel.aggregate(orderPaginationQuery({ perPage, currentPage }))]).then((values) => {
         data = {
             data: values[1],
             page: currentPage,

@@ -7,6 +7,8 @@ import { categoryService } from './category.service';
 import ProductModel from '../models/product.model';
 import { Types } from 'mongoose';
 import { fileRemove } from '../utils/utility';
+import { productPaginationQuery } from '../queries/Product.query';
+import { searchRegexMatch } from '../queries/common';
 
 /**
  * Create new item
@@ -63,14 +65,6 @@ const getProductTotalCount = async (searchQuery?: object): Promise<number> => {
 const getAllProductWithPagination = async (search: string, filter: string, limit: string, page: string): Promise<DataTableInterface> => {
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
-
-    const searchQuery = { $or: [{ name: { $regex: search, $options: 'i' } }] };
-    const lookup = {
-        from: 'categories',
-        localField: 'categoryId',
-        foreignField: '_id',
-        as: 'category',
-    };
     // if (filter) {
     //     objectIds = filter.split(',').map((id) => new Types.ObjectId(id));
     //     matchQuery = {
@@ -86,16 +80,10 @@ const getAllProductWithPagination = async (search: string, filter: string, limit
         perPage: perPage,
         total: 0,
     };
+    const match = searchRegexMatch({ field: 'name', search: search });
     await Promise.all([
-        getProductTotalCount(searchQuery),
-        ProductModel.aggregate([
-            { $match: searchQuery },
-            { $lookup: lookup },
-            { $unwind: '$category' },
-            { $sort: { _id: -1 } },
-            { $skip: currentPage * perPage },
-            { $limit: perPage },
-        ]),
+        getProductTotalCount(match),
+        ProductModel.aggregate(productPaginationQuery({ search: search, unwind: '$category', currentPage: currentPage, perPage: perPage })),
     ]).then((values) => {
         data = {
             data: values[1],

@@ -6,6 +6,8 @@ import CategoryModel from '../models/category.model';
 import ApiError from '../utils/apiError';
 import { convertToTreeStructure, validateObjectId } from '../utils/utility';
 import { Types, isValidObjectId } from 'mongoose';
+import { searchRegexMatch } from '../queries/common';
+import { allCategoryQuery, categoryPaginationQuery, categorySearchMatch } from '../queries/Category.query';
 
 /**
  * Create new category
@@ -32,7 +34,7 @@ const createCategory = async (newCategory: CategoryInterface, user: UserInterfac
  * @param {string} page
  * @returns {Promise<DataTableInterface>}
  */
-const getCategoryList = async (limit: string, page: string): Promise<DataTableInterface> => {
+const getCategoryList = async (search: string, limit: string, page: string): Promise<DataTableInterface> => {
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
 
@@ -42,33 +44,10 @@ const getCategoryList = async (limit: string, page: string): Promise<DataTableIn
         perPage: perPage,
         total: 0,
     };
+    const match = categorySearchMatch(search);
     await Promise.all([
-        getCategoryTotalCount(),
-        CategoryModel.aggregate([
-            {
-                $match: {
-                    parentId: null,
-                },
-            },
-            {
-                $lookup: {
-                    from: 'categories',
-                    localField: '_id',
-                    foreignField: 'parentId',
-                    as: 'totalSubCategory',
-                },
-            },
-            {
-                $set: {
-                    totalSubCategory: {
-                        $size: '$totalSubCategory',
-                    },
-                },
-            },
-            { $skip: currentPage * perPage },
-            { $limit: perPage },
-            { $sort: { createdDate: -1 } },
-        ]),
+        getCategoryTotalCount(match),
+        CategoryModel.aggregate(categoryPaginationQuery({ match: match, currentPage: currentPage, perPage: perPage })),
     ]).then((values) => {
         data = {
             data: values[1],
@@ -92,8 +71,16 @@ const getCategoryById = async (categoryId: string): Promise<number> => {
  * get category total count
  * @returns {Promise<number>}
  */
-const getCategoryTotalCount = async (): Promise<number> => {
-    return await CategoryModel.find({ parentId: null }).count();
+const getCategoryTotalCount = async (searchQuery?: object): Promise<number> => {
+    const result = await CategoryModel.aggregate([
+        {
+            $match: searchQuery || {},
+        },
+        {
+            $count: 'total',
+        },
+    ]);
+    return result[0]?.total;
 };
 
 /**
@@ -134,17 +121,7 @@ const checkCategoryExist = async (categoryId: string): Promise<CategoryInterface
  * @returns {Promise<CategoryInterface[]>}
  */
 const getAllCategory = async (): Promise<CategoryInterface[]> => {
-    const result = await CategoryModel.aggregate([
-        {
-            $graphLookup: {
-                from: 'categories',
-                startWith: '$_id',
-                connectFromField: '_id',
-                connectToField: 'parentId',
-                as: 'children',
-            },
-        },
-    ]);
+    const result = await CategoryModel.aggregate(allCategoryQuery());
     return convertToTreeStructure(result);
 };
 

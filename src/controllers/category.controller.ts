@@ -7,7 +7,7 @@ const createCategory = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getAllCategory = (req: Request, res: Response, next: NextFunction) => {
-    requestHandler(categoryService.getCategoryList(req.query.limit as string, req.query.page as string), res, next);
+    requestHandler(categoryService.getCategoryList(req.query.search as string, req.query.limit as string, req.query.page as string), res, next);
 };
 
 const getCategoryById = (req: Request, res: Response, next: NextFunction) => {

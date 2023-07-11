@@ -7,7 +7,11 @@ const createNewOrder = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const retrieveAllOrder = (req: Request, res: Response, next: NextFunction) => {
-    requestHandler(orderService.retrieveAllOrder(req.query.filter as string, req.query.limit as string, req.query.page as string), res, next);
+    requestHandler(
+        orderService.retrieveAllOrder(req.query.search as string, req.query.filter as string, req.query.limit as string, req.query.page as string),
+        res,
+        next
+    );
 };
 
 const retrieveOrderDetailById = (req: Request, res: Response, next: NextFunction) => {

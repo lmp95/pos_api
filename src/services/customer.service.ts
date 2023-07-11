@@ -2,6 +2,7 @@ import { CustomerInterface } from '../interfaces/customer.interface';
 import { DataTableInterface } from '../interfaces/dataTable.interface';
 import { UserInterface } from '../interfaces/user.interface';
 import CustomerModel from '../models/customer.model';
+import { customerSearchMatch } from '../queries/Customer.query';
 
 /**
  * create new customer
@@ -24,7 +25,7 @@ const addNewCustomer = async (newCustomer: CustomerInterface, user: UserInterfac
  * get total customer count
  * @returns {Promise<number>}
  */
-const getCustomerTotalCount = async (searchQuery?: any): Promise<number> => {
+const getCustomerTotalCount = async (searchQuery?: object): Promise<number> => {
     const search = searchQuery || {};
     return await CustomerModel.find(search).count();
 };
@@ -41,7 +42,7 @@ const getAllCustomers = async (search: string, filter: string, limit: string, pa
     const currentPage = parseInt(page);
     const perPage = parseInt(limit);
     let searchQuery = {};
-    if (search) searchQuery = { $or: [{ name: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }] };
+    if (search) searchQuery = customerSearchMatch(search);
     let data: DataTableInterface = {
         data: [],
         page: currentPage,

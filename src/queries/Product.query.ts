@@ -1,13 +1,34 @@
-export function ProductQuery(match, lookup, unwind, sort, perPage, currentPage) {
-    const query = [
-        { $match: match },
-        { $lookup: lookup },
-        unwind,
+import { PipelineStage } from 'mongoose';
+import { paginationLimit, paginationSkip } from './common';
+
+export function productPaginationQuery({
+    search,
+    unwind,
+    perPage,
+    currentPage,
+}: {
+    search: string;
+    unwind: PipelineStage.Unwind['$unwind'];
+    perPage: number;
+    currentPage: number;
+}): PipelineStage[] {
+    return [
         {
-            $sort: sort,
+            $match: {
+                $or: [{ name: { $regex: search, $options: 'i' } }],
+            },
         },
-        { $skip: currentPage * perPage },
-        { $limit: perPage },
+        {
+            $lookup: {
+                from: 'categories',
+                localField: 'categoryId',
+                foreignField: '_id',
+                as: 'category',
+            },
+        },
+        { $unwind: unwind },
+        { $sort: { _id: -1 } },
+        paginationSkip(perPage, currentPage),
+        paginationLimit(perPage),
     ];
-    return query;
 }
