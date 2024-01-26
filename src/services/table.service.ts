@@ -1,7 +1,7 @@
-import { DataTableInterface } from '../interfaces/dataTable.interface';
-import { TableInterface } from '../interfaces/table.interface';
-import { UserInterface } from '../interfaces/user.interface';
-import TableModel from '../models/table.model';
+import { DataTableInterface } from "../interfaces/dataTable.interface";
+import { TableInterface } from "../interfaces/table.interface";
+import { UserInterface } from "../interfaces/user.interface";
+import TableModel from "../models/table.model";
 
 /**
  * add new table
@@ -10,14 +10,14 @@ import TableModel from '../models/table.model';
  * @returns {Promise<TableInterface>}
  */
 const addTable = async (newTable: TableInterface, user: UserInterface | any): Promise<TableInterface> => {
-    const createdTable = await TableModel.create({
-        ...newTable,
-        createdBy: user.username,
-        createdDate: new Date(),
-        updatedBy: user.username,
-        updatedDate: new Date(),
-    });
-    return createdTable;
+  const createdTable = await TableModel.create({
+    ...newTable,
+    createdBy: user.username,
+    createdDate: new Date(),
+    updatedBy: user.username,
+    updatedDate: new Date(),
+  });
+  return createdTable;
 };
 
 /**
@@ -26,17 +26,21 @@ const addTable = async (newTable: TableInterface, user: UserInterface | any): Pr
  * @param {user} user
  * @returns {Promise<TableInterface>}
  */
-const updateTable = async (tableId: string, table: TableInterface, user: UserInterface | any): Promise<TableInterface> => {
-    const updatedTable = await TableModel.findOneAndUpdate(
-        { _id: tableId },
-        {
-            ...table,
-            updatedBy: user.username,
-            updatedDate: new Date(),
-        },
-        { new: true }
-    );
-    return updatedTable;
+const updateTable = async (
+  tableId: string,
+  table: TableInterface,
+  user: UserInterface | any
+): Promise<TableInterface> => {
+  const updatedTable = await TableModel.findOneAndUpdate(
+    { _id: tableId },
+    {
+      ...table,
+      updatedBy: user.username,
+      updatedDate: new Date(),
+    },
+    { new: true }
+  );
+  return updatedTable;
 };
 
 /**
@@ -46,7 +50,7 @@ const updateTable = async (tableId: string, table: TableInterface, user: UserInt
  * @returns {Promise<TableInterface>}
  */
 const deleteTable = async (tableId: string): Promise<TableInterface> => {
-    return await TableModel.findOneAndDelete({ _id: tableId });
+  return await TableModel.findOneAndDelete({ _id: tableId });
 };
 
 /**
@@ -54,12 +58,12 @@ const deleteTable = async (tableId: string): Promise<TableInterface> => {
  * @returns {Promise<TableInterface[]>}
  */
 const retrieveTables = async (): Promise<TableInterface[]> => {
-    return await TableModel.find().sort({ createdDate: -1 });
+  return await TableModel.find().sort({ createdDate: -1 });
 };
 
 export const tableService = {
-    retrieveTables,
-    addTable,
-    updateTable,
-    deleteTable,
+  retrieveTables,
+  addTable,
+  updateTable,
+  deleteTable,
 };
