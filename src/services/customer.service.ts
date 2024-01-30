@@ -63,7 +63,7 @@ const getAllCustomers = async (
     getCustomerTotalCount(searchQuery),
     CustomerModel.find(searchQuery)
       .limit(perPage)
-      .skip(perPage * currentPage),
+      .skip(perPage * (currentPage - 1)),
   ]).then((values) => {
     data = {
       data: values[1],

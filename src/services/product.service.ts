@@ -90,7 +90,7 @@ const getAllProductWithPagination = async (
     page: currentPage,
     perPage: perPage,
     total: 0,
-    totalPage: 0,
+    totalPage: 1,
   };
   const match = searchRegexMatch({ field: "name", search: search });
   await Promise.all([
