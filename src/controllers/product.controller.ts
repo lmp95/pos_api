@@ -2,8 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import { productService } from "../services/product.service";
 import { requestHandler } from "../utils/utility";
 
-const createNewProduct = (req: Request, res: Response, next: NextFunction) => {
-  requestHandler(productService.createNewProduct(req.file, req.body, req.user), res, next);
+// const createNewProduct = (req: Request, res: Response, next: NextFunction) => {
+//   requestHandler(productService.createNewProduct(req.file, req.body, req.user), res, next);
+// };
+
+const createNewBulkProduct = (req: Request, res: Response, next: NextFunction) => {
+  requestHandler(productService.createBulkProduct(req.body, req.user), res, next);
 };
 
 const getProducts = (req: Request, res: Response, next: NextFunction) => {
@@ -43,7 +47,7 @@ const updateProductById = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const productController = {
-  createNewProduct,
+  createNewBulkProduct,
   getProducts,
   deleteProductById,
   getAllProducts,

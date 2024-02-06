@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { DataTableInterface } from "../interfaces/dataTable.interface";
 import { OrderInterface } from "../interfaces/order.interface";
 import { UserInterface } from "../interfaces/user.interface";
-import ItemModel from "../models/product.model";
+import ItemModel from "../models/product/product.model";
 import OrderModel from "../models/order.model";
 import OrderItemModel from "../models/orderItem.model";
 import TableModel from "../models/table.model";

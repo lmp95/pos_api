@@ -1,26 +1,21 @@
 import httpStatus from "http-status";
 import { DataTableInterface } from "../interfaces/dataTable.interface";
-import { ProductInterface } from "../interfaces/product.interface";
+import { ProductInterface, ProductPayloadInterface } from "../interfaces/product/product.interface";
 import { UserInterface } from "../interfaces/user.interface";
 import ApiError from "../utils/apiError";
 import { categoryService } from "./category.service";
-import ProductModel from "../models/product.model";
-import { Types } from "mongoose";
+import ProductModel from "../models/product/product.model";
+import { Document, Types } from "mongoose";
 import { fileRemove, getTotalPage } from "../utils/utility";
 import { productPaginationQuery } from "../queries/Product.query";
 import { searchRegexMatch } from "../queries/common";
+import ShortUniqueId from "short-unique-id";
 
-/**
- * Create new item
- * @param {newProduct} newProduct
- * @param {user} user
- * @returns {Promise<ProductInterface>}
- */
 const createNewProduct = async (
   image: Express.Multer.File,
   newProduct: ProductInterface,
   user: UserInterface | any
-) => {
+): Promise<ProductInterface> => {
   if (!newProduct?.categoryId) {
     fileRemove(image.path);
     throw new ApiError(httpStatus.BAD_REQUEST, "Category is required");
@@ -42,6 +37,33 @@ const createNewProduct = async (
   }
 };
 
+const createBulkProduct = async (newProducts: ProductPayloadInterface[], user: UserInterface | any) => {
+  // if (!newProduct?.categoryId) {
+  //   fileRemove(image.path);
+  //   throw new ApiError(httpStatus.BAD_REQUEST, "Category is required");
+  // }
+  const productCat = newProducts[0].categoryId;
+  const category = await categoryService.checkCategoryExist(productCat.toString());
+  const { randomUUID } = new ShortUniqueId({ length: 10 });
+
+  if (category) {
+    const products = newProducts.map((product) => ({
+      ...product,
+      image: "",
+      SKU: randomUUID(),
+      // path: image?.destination.replace(/\.\/public/, ""),
+      createdBy: user.username,
+      createdDate: new Date(),
+      updatedBy: user.username,
+      updatedDate: new Date(),
+    }));
+    return await ProductModel.insertMany(products);
+  } else {
+    // fileRemove(image.path);
+    throw new ApiError(httpStatus.BAD_REQUEST, "Fail to create item");
+  }
+};
+
 /**
  * get category total count
  * @returns {Promise<number>}
@@ -58,14 +80,6 @@ const getProductTotalCount = async (searchQuery?: object): Promise<number> => {
   return result[0]?.total;
 };
 
-/**
- * Get all products with pagination
- * @param {string} search
- * @param {string} filter
- * @param {string} limit
- * @param {string} page
- * @returns {Promise<DataTableInterface>}
- */
 const getAllProductWithPagination = async (
   search: string,
   filter: string,
@@ -116,12 +130,6 @@ const getAllProductWithPagination = async (
   return data;
 };
 
-/**
- * Get all items
- * @param {string} limit
- * @param {string} page
- * @returns {Promise<DataTableInterface>}
- */
 const getAllProduct = async (filter: string, limit: string, page: string): Promise<DataTableInterface> => {
   const currentPage = parseInt(page);
   const perPage = parseInt(limit);
@@ -198,11 +206,6 @@ const updateProductById = async (
   );
 };
 
-/**
- * delete product by id
- * @param {string} productId
- * @returns {Promise<TableInterface>}
- */
 const deleteProductById = async (productId: string): Promise<ProductInterface> => {
   const deletedProduct = await ProductModel.findOneAndDelete({ _id: productId });
   fileRemove(deletedProduct.path, false, deletedProduct?.image);
@@ -211,6 +214,7 @@ const deleteProductById = async (productId: string): Promise<ProductInterface> =
 
 export const productService = {
   createNewProduct,
+  createBulkProduct,
   getAllProduct,
   deleteProductById,
   getAllProductWithPagination,

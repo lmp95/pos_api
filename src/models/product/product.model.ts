@@ -1,6 +1,7 @@
 import { model, Schema, Types } from "mongoose";
-import { ProductInterface } from "../interfaces/product.interface";
-import defaultFields from "./default.model";
+import { ProductInterface } from "../../interfaces/product/product.interface";
+import defaultFields from "../default.model";
+import { ProductAttributeScheme } from "./productAttribute.model";
 
 const ProductScheme = new Schema<ProductInterface>(
   {
@@ -21,8 +22,8 @@ const ProductScheme = new Schema<ProductInterface>(
     stock: {
       type: Number,
     },
-    unit: {
-      type: String,
+    attributes: {
+      type: [ProductAttributeScheme],
     },
     categoryId: {
       type: Types.ObjectId,

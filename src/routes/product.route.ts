@@ -9,7 +9,7 @@ productRouter
   .route("/")
   .all(authMiddleware)
   .get(productController.getProducts)
-  .post(upload("product").single("productImage"), productController.createNewProduct);
+  .post(upload("product").single("productImage"), productController.createNewBulkProduct);
 productRouter.route("/all").all(authMiddleware).get(productController.getAllProducts);
 productRouter
   .route("/:productId")
