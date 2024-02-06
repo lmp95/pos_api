@@ -106,12 +106,12 @@ const getAllProductWithPagination = async (
     total: 0,
     totalPage: 1,
   };
-  const match = searchRegexMatch({ field: "name", search: search });
+  const match = searchRegexMatch({ fields: ["name", "SKU"], search: search });
   await Promise.all([
     getProductTotalCount({ ...match, ...filterQuery }),
     ProductModel.aggregate(
       productPaginationQuery({
-        search: search,
+        match,
         filter: filterQuery,
         unwind: "$category",
         currentPage: currentPage,

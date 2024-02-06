@@ -1,7 +1,14 @@
 import { PipelineStage } from "mongoose";
 
-export function searchRegexMatch({ search, field }: { search: string; field: string }): PipelineStage.Match["$match"] {
-  return { $or: [{ [field]: { $regex: search, $options: "i" } }] };
+export function searchRegexMatch({
+  search,
+  fields,
+}: {
+  search: string;
+  fields: string[];
+}): PipelineStage.Match["$match"] {
+  const searchFields = fields.map((field) => ({ [field]: { $regex: search, $options: "i" } }));
+  return { $or: searchFields };
 }
 
 export function paginationSkip(perPage: number, currentPage: number): PipelineStage.Skip {

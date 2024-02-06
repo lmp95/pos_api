@@ -1,14 +1,14 @@
-import { PipelineStage, Types } from "mongoose";
+import { FilterQuery, PipelineStage, Types } from "mongoose";
 import { paginationLimit, paginationSkip } from "./common";
 
 export function productPaginationQuery({
-  search,
+  match,
   unwind,
   filter,
   perPage,
   currentPage,
 }: {
-  search: string;
+  match: PipelineStage.Match["$match"];
   unwind: PipelineStage.Unwind["$unwind"];
   perPage: number;
   filter: object;
@@ -18,7 +18,7 @@ export function productPaginationQuery({
     {
       $match: {
         ...filter,
-        $or: [{ name: { $regex: search, $options: "i" } }],
+        ...match,
       },
     },
     {
