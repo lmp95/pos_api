@@ -6,10 +6,11 @@ import ApiError from "../utils/apiError";
 import { categoryService } from "./category.service";
 import ProductModel from "../models/product/product.model";
 import { Document, Types } from "mongoose";
-import { fileRemove, getTotalPage } from "../utils/utility";
+import { fileRemove, getTotalPage, saveBase64Image } from "../utils/utility";
 import { productPaginationQuery } from "../queries/Product.query";
 import { searchRegexMatch } from "../queries/common";
 import ShortUniqueId from "short-unique-id";
+import { writeFile } from "fs";
 
 const createNewProduct = async (
   image: Express.Multer.File,
@@ -38,28 +39,27 @@ const createNewProduct = async (
 };
 
 const createBulkProduct = async (newProducts: ProductPayloadInterface[], user: UserInterface | any) => {
-  // if (!newProduct?.categoryId) {
-  //   fileRemove(image.path);
-  //   throw new ApiError(httpStatus.BAD_REQUEST, "Category is required");
-  // }
   const productCat = newProducts[0].categoryId;
   const category = await categoryService.checkCategoryExist(productCat.toString());
   const { randomUUID } = new ShortUniqueId({ length: 10 });
 
   if (category) {
-    const products = newProducts.map((product) => ({
-      ...product,
-      image: "",
-      SKU: randomUUID(),
-      // path: image?.destination.replace(/\.\/public/, ""),
-      createdBy: user.username,
-      createdDate: new Date(),
-      updatedBy: user.username,
-      updatedDate: new Date(),
-    }));
+    const products = newProducts.map((product) => {
+      const SKUCode = randomUUID();
+      const file = saveBase64Image(product.image, `${SKUCode}_${product.name}`);
+      return {
+        ...product,
+        image: file.filename,
+        SKU: SKUCode,
+        path: file.path.replace(/\.\/public/, ""),
+        createdBy: user.username,
+        createdDate: new Date(),
+        updatedBy: user.username,
+        updatedDate: new Date(),
+      };
+    });
     return await ProductModel.insertMany(products);
   } else {
-    // fileRemove(image.path);
     throw new ApiError(httpStatus.BAD_REQUEST, "Fail to create item");
   }
 };

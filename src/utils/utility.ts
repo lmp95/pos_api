@@ -1,6 +1,7 @@
+/* eslint-disable no-useless-escape */
 import { genSalt, hash, compare } from "bcryptjs";
 import { NextFunction, Response } from "express";
-import { unlink } from "fs";
+import { unlink, writeFile } from "fs";
 import { Error, isValidObjectId } from "mongoose";
 import ApiError from "./apiError";
 import httpStatus from "http-status";
@@ -62,4 +63,25 @@ export function fileRemove(path: string, isRoot = true, filename = null) {
 
 export function getTotalPage(totalItems: number, perPage: number) {
   return Math.ceil(totalItems / perPage);
+}
+
+export function saveBase64Image(base64: string, filename: string) {
+  const type = base64.split(";")[0].split("/")[1];
+  const matches = base64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+  const response = { type: null, data: null };
+
+  if (matches.length !== 3) {
+    return;
+  }
+  const name = `${filename}.${type}`;
+  const path = "./public/images/products/";
+
+  response.type = matches[1];
+  response.data = Buffer.from(matches[2], "base64");
+
+  writeFile(path + name, response.data, function (err) {
+    console.log("File Write Error", err);
+  });
+
+  return { path, filename: name };
 }
